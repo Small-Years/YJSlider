@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "YJSlider"
-  s.version      = "1.0.0"
+  s.version      = "1.0.2"
   s.summary      = "s.summary介绍"
   s.description  = "这里是description:::A UIView category for showing empty datasets whenever the view has no content to display."
   s.homepage     = "https://github.com/Small-Years/YJSlider"
