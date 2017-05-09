@@ -9,10 +9,7 @@
 
 //这里是检测是不是和GitHub桌面版文件地址不一样的添加方法
 
-
-
 #define padding 13   //左右两边的距离
-
 
 #import "YJ_Slider.h"
 
