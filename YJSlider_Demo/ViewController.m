@@ -30,7 +30,7 @@
     [self.view addSubview:titleLable];
     
     
-    YJ_Slider *slider = [[YJ_Slider alloc]initWithFrame:CGRectMake(15, 100,SCREEN_WIDTH - 30, 50) WithColor:[UIColor redColor] WithDefaultNum:10];
+    YJ_Slider *slider = [[YJ_Slider alloc]initWithFrame:CGRectMake(0, 100,SCREEN_WIDTH , 50) WithColor:[UIColor redColor] WithDefaultNum:10 WithMaxValue:20 WithMinValue:8];
     slider.block = ^(int value){
         NSLog(@"选中的值是：%d",value);
         titleLable.text = [NSString stringWithFormat:@"%d",value];
