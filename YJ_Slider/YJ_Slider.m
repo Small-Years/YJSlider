@@ -7,42 +7,47 @@
 //
 
 
-//#define LiuXSlideWidth      (self.bounds.size.width)
-//#define LiuXSliderHight     (self.bounds.size.height)
-//
-//#define LiuXSliderTitle_H   (LiuXSliderHight*.3)
-//
-//#define CenterImage_W       26.0
-//
-//#define LiuXSliderLine_W    (LiuXSlideWidth-CenterImage_W)
-//#define LiuXSLiderLine_H    6.0
-//#define LiuXSliderLine_Y    (LiuXSliderHight-LiuXSliderTitle_H)
-//
-//#define CenterImage_Y       (LiuXSliderLine_Y+(LiuXSLiderLine_H/2))
+//这里是检测是不是和GitHub桌面版文件地址不一样的添加方法
+
+
+
+#define padding 13   //左右两边的距离
+
 
 #import "YJ_Slider.h"
 
 @interface YJ_Slider()
 {
-    CGFloat _pointX;//滑块的位置
+    CGFloat _pointX;//滑块的x位置
     CGFloat k_Point;//每个字号需要移动的位置
+    
+    CGFloat default_Width;//控件的宽度
+    CGFloat max_Value;
+    CGFloat min_Value;
+    
+    
+    
 }
-
 
 @property (strong,nonatomic)UIView *selectView;
 @property (strong,nonatomic)UIView *defaultView;
 @property (strong,nonatomic)UIButton *centerBtn;
 @end
 
+
+
 @implementation YJ_Slider
 
--(instancetype)initWithFrame:(CGRect)frame WithColor:(UIColor *)bgColor WithDefaultNum:(int)number{
+-(instancetype)initWithFrame:(CGRect)frame WithColor:(UIColor *)bgColor WithDefaultNum:(int)number WithMaxValue:(CGFloat)maxValue WithMinValue:(CGFloat)minValue{
     if (self = [super initWithFrame:frame]) {
         self.backgroundColor = [UIColor clearColor];
-        k_Point = (self.bounds.size.width- 26) / 20;
-        _pointX = number * k_Point;
+        default_Width = self.bounds.size.width;
+        k_Point = default_Width / (maxValue - minValue);
+        max_Value = maxValue;
+        min_Value = minValue;
+        _pointX = (number-min_Value) * k_Point;
         
-        _defaultView = [[UIView alloc] initWithFrame:CGRectMake(13,(self.bounds.size.height - 5)*0.5,self.bounds.size.width - 26, 5)];
+        _defaultView = [[UIView alloc] initWithFrame:CGRectMake(padding,(self.bounds.size.height - 5)*0.5,default_Width - padding*2, 5)];
         _defaultView.backgroundColor = [UIColor lightGrayColor];
         _defaultView.layer.cornerRadius = 5/2;
         _defaultView.userInteractionEnabled = NO;
@@ -55,13 +60,12 @@
         [self addSubview:_selectView];
         
         _centerBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, number +5, number +5)];
-        _centerBtn.center = CGPointMake(0,13);
+        _centerBtn.center = CGPointMake(0,padding);
         _centerBtn.userInteractionEnabled = NO;
         _centerBtn.layer.cornerRadius = 6;
         _centerBtn.layer.borderColor = [UIColor whiteColor].CGColor;
         _centerBtn.layer.borderWidth = 2;
         _centerBtn.backgroundColor = bgColor;
-        _centerBtn.center = CGPointMake(_pointX,_defaultView.center.y);
         [self addSubview:_centerBtn];
         
         [self refreshSlider];
@@ -79,7 +83,8 @@
 
 - (BOOL)continueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event{
     [self changePointX:touch];
-    int num = (int)_pointX/((self.bounds.size.width- 26) / 20);
+    
+    int num = _pointX/k_Point+min_Value;
     if (self.block) {
         self.block(num);
     }
@@ -90,10 +95,16 @@
 
 -(void)endTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event{
     [self changePointX:touch];
-//    int num = (int)_pointX/((self.bounds.size.width- 26) / 20);
-//    if (self.block) {
-//        self.block(num);
-//    }
+    CGFloat num1 = _pointX/k_Point+min_Value;
+    int num = _pointX/k_Point+min_Value;
+    
+    if (num1 > num + 0.5) {
+        num = num +1;
+    }
+    
+    if (self.block) {
+        self.block(num);
+    }
     [self refreshSlider];
     
 }
@@ -103,28 +114,35 @@
     CGPoint point = [touch locationInView:self];
     _pointX = point.x;
     
-    if (_pointX < _defaultView.frame.origin.x+13) {
-        _pointX = _defaultView.frame.origin.x+13;
-    }else if (_pointX > CGRectGetMaxX(_defaultView.frame)-13){
-        _pointX = CGRectGetMaxX(_defaultView.frame)-13;
+    if (_pointX < _defaultView.frame.origin.x) {
+        _pointX = _defaultView.frame.origin.x;
+    }else if (_pointX > (CGRectGetMaxX(_defaultView.frame)-5)){
+        _pointX = CGRectGetMaxX(_defaultView.frame)+1;
     }
     
 }
+-(void)setMaxValue:(int)maxValue{
+    //设置k_point
+    max_Value = maxValue;
+    k_Point = (default_Width - padding*2) / (max_Value - min_Value);
+}
+-(void)setMinValue:(int)minValue{
+    //设置k_point
+    min_Value = minValue;
+    k_Point = (default_Width - padding*2) / (max_Value - min_Value);
+}
+
+
 
 -(void)refreshSlider{
-    
-    
     CGFloat Y = _defaultView.center.y ;
-    int num = _pointX/((self.bounds.size.width- 26) / 20) +5;
+    int num = _pointX/((default_Width- padding*2) / (max_Value - min_Value)) +5;
     _centerBtn.frame = CGRectMake(_pointX,Y,num,num);
     _centerBtn.center = CGPointMake(_pointX,_defaultView.center.y);
     _centerBtn.layer.cornerRadius = num/2;
-    
     CGRect rect = [_selectView frame];
-    rect.size.width = _pointX - 26/2;
+    rect.size.width = _pointX - padding;
     _selectView.frame = rect;
-    
-    
 }
 
 
